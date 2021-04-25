@@ -1,25 +1,27 @@
 package com.life.life;
 
-public class World {
+import java.util.Random;
+
+public class World implements Runnable {
     private boolean[][] orgs;
-    private boolean[][] check;
     private int width;
     private int height;
+    private boolean isRunning = true;
 
     public World(int width, int height) {
         this.orgs = new boolean[width][height];
-        this.check = new boolean[width][height];
         this.width = width;
         this.height = height;
     }
 
-    public void setUp(int prob) {
+    public void seedWorld(int seed, int prob) {
+        Random generator = new Random(seed);
+
         for (int i = 0; i < this.width; i++) {
             for (int j = 0; j < this.height; j++) {
-                this.check[i][j] = true;
-                int rand = (int) (Math.random() * 100);
+                int rand = (int) (generator.nextDouble() * 100);
 
-                if (rand > prob) {
+                if (rand < prob) {
                     this.orgs[i][j] = true;
                 } else {
                     this.orgs[i][j] = false;
@@ -32,7 +34,22 @@ public class World {
         return this.orgs;
     }
 
+    public void stop() {
+        this.isRunning = false;
+    }
+
+    @Override
+    public void run() {
+        this.isRunning = true;
+
+        while (this.isRunning) {
+            this.update();
+        }
+    }
+
     public void update() {
+        long start = System.currentTimeMillis();
+
         boolean[][] newOrgs = new boolean[width][height];
 
         for (int i = 0; i < this.width; i++) {
@@ -58,6 +75,10 @@ public class World {
                 }
             }
         }
+
+        long end = System.currentTimeMillis();
+
+        System.out.println(end - start);
 
         this.orgs = newOrgs;
     }
